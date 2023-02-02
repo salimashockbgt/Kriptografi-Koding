@@ -8,6 +8,7 @@ def generateKey(string, key):
   return("" . join(key)) 
   
 def encryption(string, key): 
+  string = string.upper()
   encrypt_text = [] 
   for i in range(len(string)): 
     x = (ord(string[i]) +ord(key[i])) % 26
@@ -16,6 +17,7 @@ def encryption(string, key):
   return("" . join(encrypt_text)) 
 
 def decryption(encrypt_text, key): 
+  encrypt_text = encrypt_text.upper()
   orig_text = [] 
   for i in range(len(encrypt_text)): 
     x = (ord(encrypt_text[i]) -ord(key[i]) + 26) % 26
