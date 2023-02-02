@@ -32,29 +32,34 @@ def extended_vigenere_decrypt(encrypted_text, key):
 
 # print(extended_vigenere_decrypt("»°ºÈºÄÇÌ¤¡¡¹ÚÜÏâß", "sony"))
 
-def encryptByteExtendedVigenere(bytePlainText, key):
-    result = [[0] for i in range(len(bytePlainText))]
-    key = key.strip().upper()
-    keyIndex = 0
-    keylength = len(key)
-    for i in range(len(bytePlainText)):
-        keyIndex = keyIndex % keylength
-        shift = ord(key[keyIndex]) - 65
-        result[i] = bytes([(ord(bytePlainText[i]) + shift) % 256])
-        keyIndex+=1
-    return result
+def encrypt_Byte(bytePlainText, key):
+    bytePlainText = str(bytePlainText)
+    list_byte = list(bytePlainText)
+    listed_key = list(key)
 
-def decryptByteExtendedVigenere(byteCipherText, key):
-    result = [[0] for i in range(len(byteCipherText))]
-    key = key.strip().upper()
-    keyIndex = 0
-    keylength = len(key)
-    for i in range(len(byteCipherText)):
-        keyIndex = keyIndex % keylength
-        shift = ord(key[keyIndex]) - 65
-        result[i] = bytes([(ord(byteCipherText[i]) + 256 - shift) % 256]).decode("utf-8")
-        keyIndex+=1
-    return result
+    # tempat hasil decrypt
+    cipher_text = []
+
+    for i in range(len(list_byte)):
+        num_char = (ord(list_byte[i]) + ord(listed_key[i%len(key)])) % 256
+        cipher_text.append(chr(num_char))
+
+    return "".join(cipher_text).encode('utf-8')
+    
+
+def decrypt_Byte(byteCipherText, key):
+    byteCipherText = str(byteCipherText)
+    list_byte = list(byteCipherText)
+    listed_key = list(key)
+
+    # tempat hasil decrypt
+    plain_text = []
+
+    for i in range(len(list_byte)):
+        num_char = (ord(list_byte[i]) - ord(listed_key[i%len(key)]) + 256) % 256
+        plain_text.append(chr(num_char))
+
+    return "".join(plain_text).encode('utf-8')
 
 def write_to_file(path, text):
     file1 = open(path,"w+") 
@@ -67,10 +72,21 @@ def readTextFromFile(path):
     file1.close()
     return data
 
-data = readTextFromFile("plainText/text.txt")
-print(data)
-encrypt = encryptByteExtendedVigenere(data, "sony")
-print(encryptByteExtendedVigenere(data, "sony"))
-print(decryptByteExtendedVigenere(encrypt, "sony"))
-decrypt = "".join(decryptByteExtendedVigenere(encrypt, "sony"))
-write_to_file("cipherText/hasil.txt", decrypt)
+def write_byte_file(filename, bytes):
+    with open(filename, "wb") as binary_file:
+        binary_file.write(bytes)
+
+def open_byte_file(filename):
+    with open(filename, 'rb') as f:
+        contents = f.read()
+        return contents
+
+
+
+'''
+encrypt = encrypt_Byte(data, "sony")
+print(encrypt_Byte(data, "sony"))
+print(decrypt_Byte(encrypt, "sony"))
+decrypt = "".join(decrypt_Byte(encrypt, "sony"))
+write_to_file("cipherText/hasil.txt", decrypt)'''
+

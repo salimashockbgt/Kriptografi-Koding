@@ -4,7 +4,20 @@ from werkzeug.utils import secure_filename
 from utils import *
 import extended
 import vigenere
+import playfair
+import onetimepad
 app = Flask(__name__)
+
+def write_to_file(path, text):
+    file1 = open(path,"w+") 
+    file1.write(text) 
+    file1.close()
+
+def readTextFromFile(path):
+    file1 = open(path, "r")
+    data = file1.read()
+    file1.close()
+    return data
 
 @app.route('/main', methods=['GET', 'POST'])
 def main():
@@ -14,18 +27,25 @@ def main():
         text = request.form['text']
         key = request.form['key']
 
+        # extended vigenere
         if method == "Extended Vigenere" and action == "Encrypt":
-            return extended.extended_vigenere_encrypt(text, key)
+            return '<h3>Hasil encrypt : %s</h3>' % extended.extended_vigenere_encrypt(text, key)
         elif method == "Extended Vigenere" and action == "Decrypt":
-            return extended.extended_vigenere_decrypt(text, key)
+            return '<h3>Hasil decrypt : %s</h3>' % extended.extended_vigenere_decrypt(text, key)
+        # vigenere
         elif method == "Vigenere" and action == "Encrypt":
             keyfix = vigenere.generateKey(text, key)
             encrypt_text = vigenere.encryption(text,keyfix)
-            return encrypt_text
+            return '<h3>Hasil encrypt : %s</h3>' % encrypt_text
         elif method == "Vigenere" and action == "Decrypt":
             keyfix = vigenere.generateKey(text, key)
             decrypt_text = vigenere.decryption(text,keyfix)
-            return decrypt_text
+            return '<h3>Hasil decrypt : %s</h3>' % decrypt_text
+        # playfair
+        elif method == "Playfair" and action == "Encrypt":
+            return '<h3>Hasil encrypt : %s</h3>' % playfair.encrypt_playfair(text, key)
+        elif method == "Playfair" and action == "Decrypt":
+            return '<h3>Hasil decrypt : %s</h3>' % playfair.decrypt_playfair(text, key)
 
     else:
         return '''
@@ -58,16 +78,8 @@ def main():
         <p><input type="submit" value="Submit"></p>
         </form>
 
-        <h4> Hasil Teks : </h4>
-
         '''
-#UPLOAD_FOLDER = 'C:\Users\UX334FL\Downloads'
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'log'])
 
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/file', methods=['GET', 'POST'])
 def file():
@@ -75,25 +87,35 @@ def file():
         method = request.form.get('method')
         action = request.form.get('action')
         key = request.form['key']
-        file = request.files['file']
-        '''
-        if request.method == 'POST':
-        # check if the post request has the file part
-            if 'file' not in request.files:
-                flash('No file part')
-                return redirect(request.url)
-            file = request.files['file']
-            # if user does not select file, browser also
-            # submit a empty part without filename
-            if file.filename == '':
-                flash('No selected file')
-                return redirect(request.url)
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                uploads = os.path.join(current_app.root_path, "plainText")
-                file.save(os.path.join(uploads, filename))
-                return redirect(url_for(request.url,
-                                        filename=filename))'''
+        path = request.form['filename']
+
+        isiFile = readTextFromFile(path)
+        
+        if method == "Vigenere" and action == "Encrypt":
+            keyfix = vigenere.generateKey(isiFile, key)
+            encrypt_text = vigenere.encryption(isiFile,keyfix)
+            write_to_file("hasil.txt", encrypt_text)
+        elif method == "Vigenere" and action == "Decrypt":
+            keyfix = vigenere.generateKey(isiFile, key)
+            decrypt_text = vigenere.decryption(isiFile,keyfix)
+            write_to_file("hasil.txt", decrypt_text)
+        elif method == "Extended Vigenere" and action == "Encrypt":
+            encrypt_text = extended.extended_vigenere_encrypt(isiFile, key)
+            write_to_file("hasil.txt", encrypt_text)
+        elif method == "Extended Vigenere" and action == "Decrypt":
+            decrypt_text = extended.extended_vigenere_decrypt(isiFile, key)
+            write_to_file("hasil.txt", decrypt_text)
+        elif method == "Playfair" and action == "Encrypt":
+            encrypt_text = playfair.encrypt_playfair(isiFile, key)
+            write_to_file("hasil.txt", encrypt_text)
+        elif method == "Playfair" and action == "Decrypt":
+            decrypt_text = playfair.decrypt_playfair(isiFile, key)
+            write_to_file("hasil.txt", decrypt_text)
+
+
+        return redirect('/showfile/hasil.txt')
+
+        
 
     else:
         return'''<h1> Extended Vigenere Chiper (256 character ASCII) </h1>
@@ -103,21 +125,25 @@ def file():
             <option value="Vigenere">Vigenere</option>
             <option value="Extended Vigenere">Extended Vigenere</option>
             <option value="Playfair">Playfair</option>
-            <option value="One Tipe Pad">One Tipe Pad</option>
+            <option value="One Time Pad">One Tipe Pad</option>
             </select>
             <label for="action">Choose action :</label>
             <select name="action" id="action">
             <option value="Encrypt">Encrypt</option>
             <option value="Decrypt">Decrypt</option>
             </select>
-            <p><input type=file name=file autocomplete="off" required></p>
+
+            <h4> Masukan path file Anda </h4>
+            <p><input name=filename required></p>
+
+            <h4> Masukan Key </h4>
             <p><input name="key"></p>
             <p><input type="submit" value="Submit"></p>
             </form>'''
 
 @app.route('/showfile/<path:filename>')
 def showfile(filename):
-    uploads = os.path.join(current_app.root_path, "plainText")
+    uploads = os.path.join(current_app.root_path, "")
     return send_from_directory(directory=uploads, path=filename, as_attachment=True)
 
 
