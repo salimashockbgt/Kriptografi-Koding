@@ -1,4 +1,5 @@
 # Extended Vigenere Cipher (256 Character ASCII)
+from pathlib import Path
 
 def extended_vigenere_encrypt(text, key):
     # convert text to list of char
@@ -32,34 +33,6 @@ def extended_vigenere_decrypt(encrypted_text, key):
 
 # print(extended_vigenere_decrypt("»°ºÈºÄÇÌ¤¡¡¹ÚÜÏâß", "sony"))
 
-def encrypt_Byte(bytePlainText, key):
-    bytePlainText = str(bytePlainText)
-    list_byte = list(bytePlainText)
-    listed_key = list(key)
-
-    # tempat hasil decrypt
-    cipher_text = []
-
-    for i in range(len(list_byte)):
-        num_char = (ord(list_byte[i]) + ord(listed_key[i%len(key)])) % 256
-        cipher_text.append(chr(num_char))
-
-    return "".join(cipher_text).encode('utf-8')
-    
-
-def decrypt_Byte(byteCipherText, key):
-    byteCipherText = str(byteCipherText)
-    list_byte = list(byteCipherText)
-    listed_key = list(key)
-
-    # tempat hasil decrypt
-    plain_text = []
-
-    for i in range(len(list_byte)):
-        num_char = (ord(list_byte[i]) - ord(listed_key[i%len(key)]) + 256) % 256
-        plain_text.append(chr(num_char))
-
-    return "".join(plain_text).encode('utf-8')
 
 def write_to_file(path, text):
     file1 = open(path,"w+") 
@@ -81,8 +54,40 @@ def open_byte_file(filename):
         contents = f.read()
         return contents
 
+# untuk enkrip dan dekrip file sembarang
+def enkripFile(path, key):
+    file = open_byte_file(path)
+    file = file.decode("ISO-8859-1")
+    enkrip = extended_vigenere_encrypt(file, key)
+    enkrip = enkrip.encode("ISO-8859-1")
+    extension = Path(path).suffix
+    write_byte_file("enkrip%s" % extension, enkrip)
+    return ("enkrip%s" % extension)
 
+def dekripFile(path, key):
+    file = open_byte_file(path)
+    file = file.decode("ISO-8859-1")
+    dekrip = extended_vigenere_decrypt(file, key)
+    dekrip = dekrip.encode("ISO-8859-1")
+    extension = Path(path).suffix
+    write_byte_file("dekrip%s" % extension, dekrip)
+    return ("dekrip%s" % extension)
 
+#print(Path('hasil.txt').suffix)
+
+'''
+file = open_byte_file("plainText/test.jpg")
+file = file.decode("ISO-8859-1")
+enkrip = extended_vigenere_encrypt(file, "sony")
+enkrip = enkrip.encode("ISO-8859-1")
+write_byte_file("hasil.jpg", enkrip)
+
+file = open_byte_file("hasil.jpg")
+file = file.decode("ISO-8859-1")
+dekrip = extended_vigenere_decrypt(file, "sony")
+dekrip = dekrip.encode("ISO-8859-1")
+write_byte_file("hasilde.jpg", dekrip)
+'''
 '''
 encrypt = encrypt_Byte(data, "sony")
 print(encrypt_Byte(data, "sony"))
