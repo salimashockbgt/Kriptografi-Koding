@@ -26,7 +26,6 @@ def main():
         action = request.form.get('action')
         text = request.form['text']
         key = request.form['key']
-
         # extended vigenere
         if method == "Extended Vigenere" and action == "Encrypt":
             return '<h3>Hasil encrypt : %s</h3>' % extended.extended_vigenere_encrypt(text, key)
@@ -46,6 +45,12 @@ def main():
             return '<h3>Hasil encrypt : %s</h3>' % playfair.encrypt_playfair(text, key)
         elif method == "Playfair" and action == "Decrypt":
             return '<h3>Hasil decrypt : %s</h3>' % playfair.decrypt_playfair(text, key)
+        # One time pad
+        elif method == "One Time Pad" and action == "Encrypt":
+            otpkey = onetimepad.generateKey(text)
+            return '<h3>Hasil encrypt : </h3>' + onetimepad.crypto(text, otpkey, True) + '\n<h3>Kunci: </h3>' + otpkey
+        elif method == "One Time Pad" and action == "Decrypt":
+            return '<h3>Hasil decrypt : %s</h3>' % onetimepad.crypto(text, key, False)
 
     else:
         return '''
@@ -53,31 +58,25 @@ def main():
         <h2> by Ima & Shely </h2>
         <p><a href="/file">Enkripsi & Dekripsi dengan File</a></p>
         <h3> Pilih metode cipher di bawah ini untuk Enkripsi & Dekripsi </h3>
-
         <form action="main" method = "POST">
-
         <label for="method">Choose cipher method :</label>
         <select name="method" id="method">
         <option value="Vigenere">Vigenere</option>
         <option value="Extended Vigenere">Extended Vigenere</option>
         <option value="Playfair">Playfair</option>
-        <option value="One Tipe Pad">One Tipe Pad</option>
+        <option value="One Time Pad">One Time Pad</option>
         </select>
-
         <label for="action">Choose action :</label>
         <select name="action" id="action">
         <option value="Encrypt">Encrypt</option>
         <option value="Decrypt">Decrypt</option>
         </select>
-
         <h4> Masukan Text </h4>
         <p><input name="text"></p>
-
         <h4> Masukan Key </h4>
         <p><input name="key"></p>
         <p><input type="submit" value="Submit"></p>
         </form>
-
         '''
 
 
@@ -111,6 +110,13 @@ def file():
         elif method == "Playfair" and action == "Decrypt":
             decrypt_text = playfair.decrypt_playfair(isiFile, key)
             write_to_file("hasil.txt", decrypt_text)
+        elif method == "One Time Pad" and action == "Encrypt":
+            encrypt_text = onetimepad.crypto(isiFile, onetimepad.generateKey(isiFile), True)
+            write_to_file("hasil.txt", encrypt_text)
+            write_to_file("key_onetimepad.txt", onetimepad.generateKey(isiFile))
+        elif method == "One Time Pad" and action == "Decrypt":
+            decrypt_text = onetimepad.crypto(isiFile, key, False)
+            write_to_file("hasil.txt", decrypt_text)
 
 
         return redirect('/showfile/hasil.txt')
@@ -125,17 +131,15 @@ def file():
             <option value="Vigenere">Vigenere</option>
             <option value="Extended Vigenere">Extended Vigenere</option>
             <option value="Playfair">Playfair</option>
-            <option value="One Time Pad">One Tipe Pad</option>
+            <option value="One Time Pad">One Time Pad</option>
             </select>
             <label for="action">Choose action :</label>
             <select name="action" id="action">
             <option value="Encrypt">Encrypt</option>
             <option value="Decrypt">Decrypt</option>
             </select>
-
             <h4> Masukan path file Anda </h4>
             <p><input name=filename required></p>
-
             <h4> Masukan Key </h4>
             <p><input name="key"></p>
             <p><input type="submit" value="Submit"></p>
