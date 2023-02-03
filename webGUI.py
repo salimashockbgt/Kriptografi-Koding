@@ -140,7 +140,7 @@ def file():
             </select>
             <h4> Masukan path file Anda </h4>
             <p><input name=filename required></p>
-            <h4> Masukan Key </h4>
+            <h4> Masukan Key/Filename </h4>
             <p><input name="key"></p>
             <p><input type="submit" value="Submit"></p>
             </form>'''
